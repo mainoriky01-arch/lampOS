@@ -264,3 +264,101 @@ When the user explicitly says to commit:
 - Services: `<domain>/service.go` (system managers live at `system/<domain>/`, e.g. `ambient/service.go`)
 - Wire providers: `server/wire.go`, `bootstrap/wire.go`
 - Domain types: `domain/<type>.go`
+
+---
+
+## Personal Fork Context (Riccardo)
+
+This section describes the specific hardware, goals, and constraints of this personal fork.
+All upstream rules above remain in force. Where this section conflicts, upstream rules win.
+
+### Hardware target
+
+| Component | Model |
+|-----------|-------|
+| SBC | OrangePi 4 Pro |
+| Camera | OV5640 USB (external, not CSI) |
+| Microphone | USB-only (no 3.5 mm, no I2S) |
+| Board profile | To be confirmed — `orangepi_sun60` in `robots/lamp/ttp223.json` is the nearest existing entry; verify at first boot |
+
+### LLM backend
+
+- **Primary**: Ollama or LM Studio running on a Mac mini on the local network (`http://mac-mini.local:11434/v1`).
+  The model name is a placeholder (`PLACEHOLDER_MODEL`) — fill in the actual model tag at deploy time.
+- **Fallback**: Anthropic Claude (set `llm_base_url` to Anthropic endpoint and provide real API key when needed).
+- Goal: zero / minimal cloud cost. Avoid any service that requires a paid API key for normal operation.
+
+### Disabled cloud services
+
+All Autonomous cloud services are off. Set in `config/config.json` (copy from `config/config.riccardo.json`):
+
+```json
+"alerts_disabled": true,
+"cloud_perception": { "motion": false, "emotion": false, "pose": false, "fire_hazard": false, "speaker_id": false, "speech_emotion": false }
+```
+
+MQTT endpoint, FA/FD channels, device_id — leave empty; Autonomous backend is not used.
+
+### Disabled features
+
+| Feature | How it is disabled |
+|---|---|
+| Telegram | `telegram_bot_token: ""` and `channel: ""` in config |
+| Wellbeing / habit tracking | `wellbeing_disabled: true` in config (see `system/server/config/config.go` `WellbeingDisabled`) |
+| Posture tracking | Not actively disabled; sensor never fires because no pose cloud perception |
+| Emotion / speech-emotion | `cloud_perception.emotion: false`, `cloud_perception.speech_emotion: false` |
+| Ambient environment sensors | `environment.enabled: false` in config |
+| TTP223 touchpad | Hardware-level: OrangePi 4 Pro board entry not present in `robots/lamp/ttp223.json`; verify at first boot that HAL does not attempt GPIO lines meant for another board |
+
+### Lingua italiana
+
+The target UI language is Italian. Files to touch when adding/changing Italian support:
+
+- `config/config.json` → `"stt_language": "it"` — tells HAL which BCP-47 locale to pass to the STT backend.
+- `system/lib/i18n/lang.go` — add `LangIT = "it"` constant and any short Italian phrases used by `Pick`/`One`.
+- `robots/lamp/SOUL.md` / `robots/lamp/SKILL.md` — add Italian instructions or a `SOUL.it.md` override (same mechanism as `SOUL.wajo.md`).
+- HAL voice (`tts_voice`) — pick a TTS voice that supports Italian, or use a local TTS backend.
+
+### Local STT (Whisper)
+
+To replace the Autonomous cloud STT with local Whisper:
+
+1. Run `whisper-server` (e.g. `whisper.cpp` HTTP server) on the Mac mini or on the OrangePi itself.
+2. Set in config: `"stt_base_url": "http://mac-mini.local:<port>/v1"`, `"stt_api_key": "placeholder-key"`, `"stt_model": "<whisper-model-tag>"`.
+3. The HAL STT driver (`hal/drivers/voice/`) reads `stt_base_url` from `os-server`; no Go code change needed unless the endpoint format differs.
+
+### Camera notes (OV5640 USB)
+
+- The OV5640 is a USB UVC device, not a CSI ribbon. HAL's camera driver should auto-detect it as `/dev/video0` (or similar); verify with `v4l2-ctl --list-devices` on the board.
+- FOV: OV5640 has a ~70° diagonal FOV in typical module configurations — narrower than wide-angle CSI lenses. Vision tracking (servo follow) may need lower `follow_speed` or tighter deadband to avoid oscillation.
+- Cloud perception is off, so the camera is used only for local detection (wakeword light-flash, local face presence). No frames leave the device.
+
+### Deploy via SSH
+
+SSH to the board (ask user for current IP before running any SSH command — see Device Access Rules above):
+
+```bash
+# Cross-compile on Mac
+GOOS=linux GOARCH=arm64 go build -o dist/os-server ./system/cmd/os-server
+
+# Copy binary
+scp dist/os-server pi@<BOARD_IP>:/opt/os-server/os-server
+
+# Copy config (first deploy)
+ssh pi@<BOARD_IP> mkdir -p /root/config
+scp config/config.riccardo.json pi@<BOARD_IP>:/root/config/config.json
+
+# Restart service
+ssh pi@<BOARD_IP> systemctl restart os-server
+```
+
+Replace `<BOARD_IP>` with the board's current IP. Never SSH automatically — always confirm with user first.
+
+### Fields to fill in manually before first deploy
+
+- `llm_model` — actual Ollama model tag (e.g. `llama3.2`, `mistral`, etc.)
+- `llm_api_key` — Ollama ignores it; set to any non-empty string or `"ollama"` if required
+- `admin_password_hash` — run `htpasswd -bnBC 10 "" <password> | tr -d ':\n' | sed 's/$2y/$2a/'` and paste the hash
+- `session_secret` — generate with `openssl rand -base64 32`
+- `network_ssid` / `network_password` — home WiFi credentials for the board
+- Board IP — discovered via router DHCP lease or `nmap`; varies per session
