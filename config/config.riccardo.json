@@ -1,0 +1,70 @@
+{
+  "httpPort": 5000,
+  "device_type": "lamp",
+  "agent_runtime": "codex",
+  "set_up_completed": true,
+
+  "llm_base_url": "http://mac-mini.local:11434/v1",
+  "llm_model": "PLACEHOLDER_MODEL",
+  "llm_api_key": "placeholder-key",
+
+  "stt_api_key": "",
+  "stt_base_url": "",
+  "stt_model": "",
+  "stt_language": "it",
+  "deepgram_api_key": "",
+
+  "tts_api_key": "",
+  "tts_base_url": "",
+  "tts_provider": "",
+  "tts_voice": "",
+  "tts_instructions": "",
+
+  "realtime": {
+    "enabled": false
+  },
+
+  "wakeword": true,
+  "timezone": "Europe/Rome",
+
+  "admin_password_hash": "",
+  "session_secret": "",
+
+  "channel": "",
+  "telegram_bot_token": "",
+  "telegram_user_id": "",
+
+  "alerts_disabled": true,
+  "wellbeing_disabled": true,
+
+  "cloud_perception": {
+    "motion": false,
+    "emotion": false,
+    "pose": false,
+    "fire_hazard": false,
+    "speaker_id": false,
+    "speech_emotion": false
+  },
+
+  "environment": {
+    "enabled": false,
+    "initial_report": false,
+    "evaluate_interval_s": 10,
+    "sustain_s": 60,
+    "cooldown_s": 1800,
+    "retry_interval_s": 60,
+    "max_sample_age_s": 10,
+    "metrics": {}
+  },
+
+  "device_id": "",
+  "mqtt_endpoint": "",
+  "mqtt_port": 1883,
+  "mqtt_username": "",
+  "mqtt_password": "",
+  "fa_channel": "",
+  "fd_channel": "",
+
+  "network_ssid": "",
+  "network_password": ""
+}
