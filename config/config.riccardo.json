@@ -25,7 +25,11 @@
   "tts_instructions": "",
 
   "realtime": {
-    "enabled": false
+    "enabled": true,
+    "provider": "gemini",
+    "model": "gemini-3.8-live",
+    "voice": "Kore",
+    "thinking_level": "LOW"
   },
 
   "wakeword": true,
