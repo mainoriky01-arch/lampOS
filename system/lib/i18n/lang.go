@@ -11,6 +11,7 @@ import (
 // BCP-47 language codes; LangZh/LangZhHans/LangZhHant normalise to LangZhCN/LangZhTW.
 const (
 	LangEN     = "en"
+	LangIT     = "it"
 	LangJA     = "ja"
 	LangVI     = "vi"
 	LangZhCN   = "zh-CN"
