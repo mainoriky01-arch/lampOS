@@ -1,0 +1,58 @@
+{
+  "httpPort": 5000,
+  "device_type": "lamp",
+  "agent_runtime": "hermes",
+  "set_up_completed": true,
+
+  "llm_api_key": "ollama",
+  "llm_base_url": "http://mac-mini.local:11434/v1",
+  "llm_model": "PLACEHOLDER_MODEL",
+
+  "stt_api_key": "placeholder-key",
+  "stt_base_url": "",
+  "stt_model": "",
+  "stt_language": "it",
+  "deepgram_api_key": "",
+
+  "whisper_base_url": "http://mac-mini.local:8000/v1",
+  "whisper_model": "whisper-1",
+  "whisper_api_key": "",
+
+  "tts_api_key": "",
+  "tts_base_url": "",
+  "tts_provider": "piper",
+  "tts_voice": "it_IT-serena-medium",
+  "tts_instructions": "",
+
+  "wakeword": true,
+  "timezone": "Europe/Rome",
+
+  "admin_password_hash": "",
+  "session_secret": "",
+
+  "channel": "",
+  "telegram_bot_token": "",
+  "telegram_user_id": "",
+
+  "device_id": "",
+  "mqtt_endpoint": "",
+  "mqtt_port": 1883,
+  "mqtt_username": "",
+  "mqtt_password": "",
+  "fa_channel": "",
+  "fd_channel": "",
+
+  "alerts_disabled": true,
+  "wellbeing_disabled": true,
+  "cloud_perception": {
+    "motion": false,
+    "emotion": false,
+    "pose": false,
+    "fire_hazard": false,
+    "speaker_id": false,
+    "speech_emotion": false
+  },
+  "environment": {
+    "enabled": false
+  }
+}
