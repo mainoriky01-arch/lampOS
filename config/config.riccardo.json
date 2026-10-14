@@ -14,6 +14,10 @@
   "stt_language": "it",
   "deepgram_api_key": "",
 
+  "whisper_base_url": "http://mac-mini.local:8000/v1",
+  "whisper_model": "whisper-1",
+  "whisper_api_key": "",
+
   "tts_api_key": "",
   "tts_base_url": "",
   "tts_provider": "piper",

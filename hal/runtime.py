@@ -183,12 +183,14 @@ if _simulation and "sensing" in _declared:
 VoiceService = None
 DeepgramSTT = None
 AutonomousSTT = None
+WhisperSTT = None
 TTSService = None
 PROVIDER_OPENAI = "openai"  # fallback when the TTS import below is skipped/unavailable
 if "voice" in _declared:
     try:
         from hal.drivers.voice.stt import AutonomousSTT
         from hal.drivers.voice.stt import DeepgramSTT
+        from hal.drivers.voice.stt import WhisperSTT
         from hal.drivers.voice.voice_service import VoiceService
     except ImportError as e:
         logger.warning(f"Voice service not available: {e}")
@@ -573,8 +575,14 @@ async def lifespan(app: FastAPI):
             agent_name = state._read_agent_name()
             wake_words = state._build_wake_words(agent_name)
             stt_provider = None
-            logger.info("STT selection: deepgram_key=%s, DeepgramSTT=%s, AutonomousSTT=%s, agent=%s",
-                        bool(dgk), DeepgramSTT is not None, AutonomousSTT is not None, agent_name)
+            whisper_url = os_cfg.get("whisper_base_url", "").strip()
+            whisper_model = (os_cfg.get("whisper_model") or "").strip() or None
+            logger.info(
+                "STT selection: deepgram_key=%s, DeepgramSTT=%s, AutonomousSTT=%s,"
+                " whisper_url=%s, WhisperSTT=%s, agent=%s",
+                bool(dgk), DeepgramSTT is not None, AutonomousSTT is not None,
+                bool(whisper_url), WhisperSTT is not None, agent_name,
+            )
             stt_keywords = state._stt_boost_terms()
             if dgk and DeepgramSTT:
                 stt_provider = DeepgramSTT(api_key=dgk, keywords=stt_keywords)
@@ -589,6 +597,19 @@ async def lifespan(app: FastAPI):
                 stt_provider = AutonomousSTT(
                     api_key=stt_key, base_url=stt_url,
                     keywords=stt_keywords, **stt_kwargs
+                )
+            elif whisper_url and WhisperSTT:
+                stt_language = normalize_language(os_cfg.get("stt_language")) or None
+                whisper_api_key = os_cfg.get("whisper_api_key", "").strip()
+                stt_kwargs = {}
+                if whisper_model:
+                    stt_kwargs["model"] = whisper_model
+                if stt_language:
+                    stt_kwargs["language"] = stt_language
+                stt_provider = WhisperSTT(
+                    base_url=whisper_url,
+                    api_key=whisper_api_key,
+                    **stt_kwargs,
                 )
             if stt_provider:
                 state.voice_service = VoiceService(
