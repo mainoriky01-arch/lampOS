@@ -27,6 +27,7 @@ import (
 	"go.autonomous.ai/os/system/lib/hal"
 	"go.autonomous.ai/os/system/lib/i18n"
 	"go.autonomous.ai/os/system/lib/logger"
+	"go.autonomous.ai/os/system/skillcontext"
 	"go.autonomous.ai/os/system/lib/mqtt"
 	"go.autonomous.ai/os/system/lib/safego"
 	"go.autonomous.ai/os/system/lib/sensingmsg"
@@ -256,6 +257,7 @@ func (s *Server) Serve(closeFn func()) error {
 	// Must precede StartWS below — a WS reconnect that lands before i18n is
 	// wired falls back to English even when STTLanguage is "vi"/"zh-*".
 	i18n.SetConfig(s.config)
+	skillcontext.SetConfig(s.config)
 
 	// Seed TTS provider/voice from ROBOT.md only while unset; never clobbers
 	// a user choice. The voice must match the provider (elevenlabs rejects "nova").

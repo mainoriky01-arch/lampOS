@@ -9,12 +9,22 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"go.autonomous.ai/os/system/lib/usercanon"
+	"go.autonomous.ai/os/system/server/config"
 	"go.autonomous.ai/os/system/skillcontext/posture"
 	"go.autonomous.ai/os/system/skillcontext/wellbeing"
 )
+
+// activeCfg holds the live config so BuildWellbeingContext can check WellbeingDisabled.
+var activeCfg atomic.Pointer[config.Config]
+
+// SetConfig wires the live config into the skillcontext package.
+func SetConfig(cfg *config.Config) {
+	activeCfg.Store(cfg)
+}
 
 const (
 	usersDir         = "/root/local/users"
@@ -96,6 +106,9 @@ type patternDigest struct {
 // BuildWellbeingContext returns a `[wellbeing_context: ...]` block for motion.activity,
 // or "" on hard failure so the SKILL.md fallback runs.
 func BuildWellbeingContext(user string) string {
+	if cfg := activeCfg.Load(); cfg != nil && cfg.WellbeingDisabled {
+		return ""
+	}
 	user = usercanon.Resolve(user)
 	if user == "" {
 		user = "unknown"

@@ -160,6 +160,10 @@ type Config struct {
 	// {LLMBaseURL}/alert).
 	AlertsDisabled bool `json:"alerts_disabled,omitempty" yaml:"alertsDisabled"`
 
+	// WellbeingDisabled skips wellbeing context injection into sensing turns.
+	// Set true on devices where habit/hydration tracking is not in use.
+	WellbeingDisabled bool `json:"wellbeing_disabled,omitempty" yaml:"wellbeingDisabled"`
+
 	// ClaudeCodeOAuthToken is the long-lived claude.ai OAuth token produced
 	// by the claudecode login flow (`claude setup-token`,
 	// runtimes/claudecode/login.go).
