@@ -17,6 +17,14 @@ SUBSYSTEM=="video4linux", ATTRS{idVendor}=="01da", ATTRS{idProduct}=="5875", ATT
 # ZVCAI USB_Camera (current standard fit, seen on lamp-ac82/4ace/dbda 2026-09)
 SUBSYSTEM=="video4linux", ATTRS{idVendor}=="01da", ATTRS{idProduct}=="5875", ATTR{index}=="0", SYMLINK+="device-camera"
 
+# RICCARDO'S BUILD — OV5640 USB camera (placeholder VID:PID, not yet measured).
+# When the camera arrives: plug it into the OrangePi, run `lsusb`, find the
+# vendor:product pair for the OV5640 module, then replace XXXX:XXXX below with
+# the real values (keep ATTR{index}=="0" — that's the capture node, not the UVC
+# metadata sibling). SYMLINK stays "device-camera" so nothing else in HAL needs
+# to change.
+SUBSYSTEM=="video4linux", ATTRS{idVendor}=="XXXX", ATTRS{idProduct}=="XXXX", ATTR{index}=="0", SYMLINK+="device-camera"
+
 # Servo driver: QinHeng CH340 -> /dev/device-servo
 SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d3", SYMLINK+="device-servo"
 

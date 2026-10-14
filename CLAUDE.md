@@ -333,6 +333,28 @@ To replace the Autonomous cloud STT with local Whisper:
 - FOV: OV5640 has a ~70° diagonal FOV in typical module configurations — narrower than wide-angle CSI lenses. Vision tracking (servo follow) may need lower `follow_speed` or tighter deadband to avoid oscillation.
 - Cloud perception is off, so the camera is used only for local detection (wakeword light-flash, local face presence). No frames leave the device.
 
+**Quando arriva la camera — 3 passi:**
+
+1. Collegare la OV5640 alla OrangePi e lanciare `lsusb`; annotare `idVendor:idProduct` della camera.
+2. In `robots/lamp/rootfs/etc/udev/rules.d/99-lamp-device.rules` sostituire il placeholder `XXXX:XXXX` con i valori reali; mantenere `ATTR{index}=="0"` e `SYMLINK+="device-camera"` invariati.
+3. Misurare il FOV orizzontale reale del modulo e aggiornare `CAMERA_FOV_DEG` in `hal/drivers/tracking/constants.py` (riga ~23). Il valore attuale (`60.0`) è il FOV della camera del lamp originale, **non** della OV5640 — non usarlo in deploy senza misurazione reale.
+
+### Microfono — solo USB (nessun mic di bordo)
+
+Questa build usa esclusivamente un microfono USB. Non c'è alcun mic di bordo (l'upstream lamp originale ha rimosso il mic ES8389 di bordo via `asound.conf`); la stessa logica si applica qui.
+
+`hal/drivers/voice/voice_service.py` sceglie automaticamente il backend audio:
+- se `HAL_AUDIO_INPUT_ALSA` è impostato → usa `arecord`/ALSA (riga ~1024);
+- altrimenti → usa `sounddevice` con auto-detect del device.
+
+Nessuna modifica di codice è necessaria: il mic USB è rilevato come qualsiasi altro device ALSA/PortAudio. I tre campi `.env` da configurare in `/opt/hal/.env` (scoprire i device con `arecord -l` / `aplay -l`):
+
+```
+HAL_AUDIO_INPUT_ALSA=plughw:<card>,0      # mic USB (STT + wakeword)
+HAL_AUDIO_SENSING_DEVICE=plughw:<card>,0  # mic per il sensing (default: stesso di INPUT_ALSA)
+HAL_AUDIO_OUTPUT_ALSA=plughw:<card>,0     # speaker USB
+```
+
 ### Deploy via SSH
 
 SSH to the board (ask user for current IP before running any SSH command — see Device Access Rules above):
