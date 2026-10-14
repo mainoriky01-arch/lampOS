@@ -2,11 +2,12 @@
 
 # DEFAULT_LANG is the fallback when stt_language is empty or unknown.
 LANG_EN = "en"
+LANG_IT = "it"
 LANG_VI = "vi"
 LANG_JA = "ja"
 LANG_ZH_CN = "zh-CN"
 LANG_ZH_TW = "zh-TW"
-SUPPORTED_LANGS = [LANG_EN, LANG_VI, LANG_ZH_CN, LANG_ZH_TW, LANG_JA]
+SUPPORTED_LANGS = [LANG_EN, LANG_IT, LANG_VI, LANG_ZH_CN, LANG_ZH_TW, LANG_JA]
 DEFAULT_LANG = LANG_EN
 
 def normalize_language(language: str | None) -> str:

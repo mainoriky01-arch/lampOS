@@ -103,7 +103,7 @@ SPEAKER_MIN_AUDIO_S = _hal_config.SPEAKER_MIN_AUDIO_S
 
 
 _wake_name = _hal_config.resolve_device_type("friend")
-WAKE_WORD_PREFIXES = ("hello", "hey", "hi", "alo", "okay", "ok", "wake up")
+WAKE_WORD_PREFIXES = ("hello", "hey", "hi", "alo", "okay", "ok", "wake up", "ciao", "ehi", "salve")
 # Intern listens for a NAME anywhere in a sentence ("hey intern", "what time is it,
 # autonomous"); other devices keep greeting + name phrases at a sentence edge.
 WAKE_NAME_ANYWHERE = _wake_name.startswith("intern")

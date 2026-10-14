@@ -1,12 +1,12 @@
 {
   "httpPort": 5000,
   "device_type": "lamp",
-  "agent_runtime": "codex",
+  "agent_runtime": "hermes",
   "set_up_completed": true,
 
   "llm_base_url": "http://mac-mini.local:11434/v1",
   "llm_model": "PLACEHOLDER_MODEL",
-  "llm_api_key": "placeholder-key",
+  "llm_api_key": "ollama",
 
   "stt_api_key": "",
   "stt_base_url": "",
@@ -16,8 +16,8 @@
 
   "tts_api_key": "",
   "tts_base_url": "",
-  "tts_provider": "",
-  "tts_voice": "",
+  "tts_provider": "piper",
+  "tts_voice": "it_IT-serena-medium",
   "tts_instructions": "",
 
   "realtime": {
@@ -25,6 +25,7 @@
   },
 
   "wakeword": true,
+  "wake_phrases": ["ciao lampos", "ehi lampos", "ok lampos", "salve lampos"],
   "timezone": "Europe/Rome",
 
   "admin_password_hash": "",

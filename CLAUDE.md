@@ -327,6 +327,60 @@ To replace the Autonomous cloud STT with local Whisper:
 2. Set in config: `"stt_base_url": "http://mac-mini.local:<port>/v1"`, `"stt_api_key": "placeholder-key"`, `"stt_model": "<whisper-model-tag>"`.
 3. The HAL STT driver (`hal/drivers/voice/`) reads `stt_base_url` from `os-server`; no Go code change needed unless the endpoint format differs.
 
+### Voce TTS italiana (Piper)
+
+Piper è il TTS locale scelto per questa build (`tts_provider: "piper"` in config). Le voci italiane disponibili nel catalogo (`hal/drivers/voice/tts/piper_catalog.py`):
+
+| Chiave config | Descrizione | Dimensione | Note |
+|---|---|---|---|
+| `it_IT-serena-medium` | Femminile, neutro — **default consigliato** | 63 MB | Buon compromesso qualità/peso su OrangePi 4 Pro |
+| `it_IT-serena-high` | Femminile, qualità superiore | 114 MB | Usare se la CPU regge |
+| `it_IT-paola-medium` | Femminile, voce alternativa | 63 MB | — |
+| `it_IT-riccardo-x_low` | Maschile, qualità bassa | 28 MB | Più leggera, consigliata solo se la RAM è critica |
+
+**Cambiare voce:** nel file `config/config.json` (o `config.riccardo.json`), modificare `"tts_voice"` con la chiave desiderata.
+
+**Scaricare i modelli sulla board** (eseguire via SSH dopo il primo deploy):
+
+```bash
+VOICES=/opt/piper/voices
+mkdir -p "$VOICES"
+
+# it_IT-serena-medium (63 MB) — default
+BASE="https://huggingface.co/rhasspy/piper-voices/resolve/main/it/it_IT/serena/medium"
+curl -L "$BASE/it_IT-serena-medium.onnx"      -o "$VOICES/it_IT-serena-medium.onnx"
+curl -L "$BASE/it_IT-serena-medium.onnx.json" -o "$VOICES/it_IT-serena-medium.onnx.json"
+
+# it_IT-serena-high (114 MB) — opzionale
+BASE="https://huggingface.co/rhasspy/piper-voices/resolve/main/it/it_IT/serena/high"
+curl -L "$BASE/it_IT-serena-high.onnx"      -o "$VOICES/it_IT-serena-high.onnx"
+curl -L "$BASE/it_IT-serena-high.onnx.json" -o "$VOICES/it_IT-serena-high.onnx.json"
+
+# it_IT-paola-medium (63 MB) — alternativa
+BASE="https://huggingface.co/rhasspy/piper-voices/resolve/main/it/it_IT/paola/medium"
+curl -L "$BASE/it_IT-paola-medium.onnx"      -o "$VOICES/it_IT-paola-medium.onnx"
+curl -L "$BASE/it_IT-paola-medium.onnx.json" -o "$VOICES/it_IT-paola-medium.onnx.json"
+
+# it_IT-riccardo-x_low (28 MB) — leggero, maschile
+BASE="https://huggingface.co/rhasspy/piper-voices/resolve/main/it/it_IT/riccardo/x_low"
+curl -L "$BASE/it_IT-riccardo-x_low.onnx"      -o "$VOICES/it_IT-riccardo-x_low.onnx"
+curl -L "$BASE/it_IT-riccardo-x_low.onnx.json" -o "$VOICES/it_IT-riccardo-x_low.onnx.json"
+```
+
+**Nota wake word e nome dispositivo:** il campo `wake_phrases` in `config/config.riccardo.json` è già popolato e attivo:
+
+```json
+"wake_phrases": ["ciao lampos", "ehi lampos", "ok lampos", "salve lampos"]
+```
+
+**Comportamento importante (replace, non append):** quando `wake_phrases` è non-vuoto, **sostituisce interamente** la lista built-in (prefissi inglesi/italiani + nome agente dinamico). Non si somma ad essa. Confermato da `hal/drivers/voice/voice_service.py`, funzione `_effective_wake_words`: la riga `if custom: return merge_wake_words(custom)` esegue un replace, non un append (il docstring della funzione dice esplicitamente "replace the built-in list").
+
+**Lettura live:** il campo è letto senza restart da `hal/config.py::custom_wake_phrases()` — un salvataggio dall'admin web si applica immediatamente.
+
+**Validazione lato Go** (`system/server/config/wake_phrases.go`): `MaxWakePhrases=30`, `MaxWakePhraseRunes=40`, lowercase forzato, almeno una lettera obbligatoria, deduplicazione automatica.
+
+Il nome del device type (`resolve_device_type()` in `hal/config.py` legge `device_type` dal config) resta `lamp` di default. Non modificarlo a meno che non si sia verificato che la cartella `robots/<device_type>/` esista — altrimenti HAL non trova i file ROBOT/SOUL.
+
 ### Camera notes (OV5640 USB)
 
 - The OV5640 is a USB UVC device, not a CSI ribbon. HAL's camera driver should auto-detect it as `/dev/video0` (or similar); verify with `v4l2-ctl --list-devices` on the board.

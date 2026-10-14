@@ -72,6 +72,39 @@ CATALOG = {
         "requires_attribution": True,
         "size_mb": 63,
     },
+    # Italian voices — default for lang_code "it" is it_IT-serena-medium (63 MB, neutral female).
+    "it_IT-serena-medium": {
+        "language": "Italiano — Serena (medium)",
+        "lang_code": "it",
+        "path": "it/it_IT/serena/medium",
+        "license": "CC BY 4.0",
+        "requires_attribution": True,
+        "size_mb": 63,
+    },
+    "it_IT-serena-high": {
+        "language": "Italiano — Serena (high)",
+        "lang_code": "it",
+        "path": "it/it_IT/serena/high",
+        "license": "CC BY 4.0",
+        "requires_attribution": True,
+        "size_mb": 114,
+    },
+    "it_IT-paola-medium": {
+        "language": "Italiano — Paola (medium)",
+        "lang_code": "it",
+        "path": "it/it_IT/paola/medium",
+        "license": "CC BY 4.0",
+        "requires_attribution": True,
+        "size_mb": 63,
+    },
+    "it_IT-riccardo-x_low": {
+        "language": "Italiano — Riccardo (x_low)",
+        "lang_code": "it",
+        "path": "it/it_IT/riccardo/x_low",
+        "license": "CC BY 4.0",
+        "requires_attribution": True,
+        "size_mb": 28,
+    },
 }
 
 # The voice a device installs when the operator turns Piper on without picking
