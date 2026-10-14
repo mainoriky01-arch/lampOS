@@ -21,6 +21,7 @@
   "tts_instructions": "",
 
   "wakeword": true,
+  "wake_phrases": ["ciao lampos", "ehi lampos", "ok lampos", "salve lampos"],
   "timezone": "Europe/Rome",
 
   "admin_password_hash": "",

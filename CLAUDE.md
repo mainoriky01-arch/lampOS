@@ -367,7 +367,19 @@ curl -L "$BASE/it_IT-riccardo-x_low.onnx"      -o "$VOICES/it_IT-riccardo-x_low.
 curl -L "$BASE/it_IT-riccardo-x_low.onnx.json" -o "$VOICES/it_IT-riccardo-x_low.onnx.json"
 ```
 
-**Nota wake word e nome dispositivo:** il nome usato nelle wake word (es. "ciao lampos") viene da `resolve_device_type()` in `hal/config.py`, che legge `device_type` dal config. Per usare "lampos" come nome: impostare `"device_type": "lampos"` in config (verifica che non rompa il routing in `hal/runtime.py` — se il device type non ha una cartella in `robots/`, HAL potrebbe non trovare i file ROBOT/SOUL). Alternativa sicura: aggiungere le frasi custom in `"wake_phrases": ["ciao lampos", "ehi lampos", "ok lampos", "salve lampos"]` nel config — queste si sommano alle wake words generate automaticamente.
+**Nota wake word e nome dispositivo:** il campo `wake_phrases` in `config/config.riccardo.json` è già popolato e attivo:
+
+```json
+"wake_phrases": ["ciao lampos", "ehi lampos", "ok lampos", "salve lampos"]
+```
+
+**Comportamento importante (replace, non append):** quando `wake_phrases` è non-vuoto, **sostituisce interamente** la lista built-in (prefissi inglesi/italiani + nome agente dinamico). Non si somma ad essa. Confermato da `hal/drivers/voice/voice_service.py`, funzione `_effective_wake_words`: la riga `if custom: return merge_wake_words(custom)` esegue un replace, non un append (il docstring della funzione dice esplicitamente "replace the built-in list").
+
+**Lettura live:** il campo è letto senza restart da `hal/config.py::custom_wake_phrases()` — un salvataggio dall'admin web si applica immediatamente.
+
+**Validazione lato Go** (`system/server/config/wake_phrases.go`): `MaxWakePhrases=30`, `MaxWakePhraseRunes=40`, lowercase forzato, almeno una lettera obbligatoria, deduplicazione automatica.
+
+Il nome del device type (`resolve_device_type()` in `hal/config.py` legge `device_type` dal config) resta `lamp` di default. Non modificarlo a meno che non si sia verificato che la cartella `robots/<device_type>/` esista — altrimenti HAL non trova i file ROBOT/SOUL.
 
 ### Camera notes (OV5640 USB)
 
