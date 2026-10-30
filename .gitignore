@@ -68,3 +68,6 @@ integrations/perception-service/tests/mock_data/audio/speakers/
 
 # Locally built wheels for the hal `aec` extra (scripts/release/build-aec-wheel.sh)
 dist/aec/
+
+# Riccardo's personal device config (contains real secrets once filled in)
+config/config.riccardo.json
