@@ -135,6 +135,7 @@ build: build-preflight
 	# the Docker build context is this directory, so the file cannot be COPY'd
 	# into the builder image — it rides the /input mount instead. Re-copied on
 	# every build, so the staged copy can never go stale.
+	@mkdir -p input
 	cp ../provision/software-update input/software-update
 
 	# Run it — needs --privileged for losetup/mount.
